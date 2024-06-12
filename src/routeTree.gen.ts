@@ -15,6 +15,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
+import { Route as PostsRouteImport } from './routes/posts/route'
+import { Route as PaymentsRouteImport } from './routes/payments/route'
 
 // Create Virtual Routes
 
@@ -38,6 +40,18 @@ const AuthenticatedRoute = AuthenticatedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PostsRouteRoute = PostsRouteImport.update({
+  path: '/posts',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/posts/route.lazy').then((d) => d.Route))
+
+const PaymentsRouteRoute = PaymentsRouteImport.update({
+  path: '/payments',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/payments/route.lazy').then((d) => d.Route),
+)
+
 const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
@@ -52,6 +66,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/posts': {
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsRouteImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated': {
@@ -82,6 +110,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
+  PaymentsRouteRoute,
+  PostsRouteRoute,
   LoginRoute,
   AboutLazyRoute,
 })
@@ -95,6 +125,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/payments",
+        "/posts",
         "/_authenticated",
         "/login",
         "/about"
@@ -102,6 +134,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/payments": {
+      "filePath": "payments/route.tsx"
+    },
+    "/posts": {
+      "filePath": "posts/route.tsx"
     },
     "/_authenticated": {
       "filePath": "_authenticated.tsx"
